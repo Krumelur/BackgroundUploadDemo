@@ -1,0 +1,33 @@
+# Version: 8.10.3.2 (8b265d6)
+# [first argument, ignore] # /Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/mtouch.exe
+/Library/Frameworks/Xamarin.iOS.framework/Versions/8.10.3.2/bin/mtouch \
+	--cache \
+	/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/mtouch-cache \
+	--sim \
+	/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/bin/iPhoneSimulator/Debug/BackgroundUploadDemo.app \
+	--executable \
+	BackgroundUploadDemo \
+	--debug \
+	--profiling \
+	--nolink \
+	--sdkroot \
+	/Applications/Xcode.app/Contents/Developer \
+	--sdk \
+	8.4 \
+	--targetver \
+	8.4 \
+	--abi=i386 \
+	--symbollist \
+	/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/mtouch-symbols.list \
+	--dsym=no \
+	-r \
+	/Library/Frameworks/Xamarin.iOS.framework/Versions/Current/lib/mono/Xamarin.iOS/System.dll \
+	-r \
+	/Library/Frameworks/Xamarin.iOS.framework/Versions/Current/lib/mono/Xamarin.iOS/System.Xml.dll \
+	-r \
+	/Library/Frameworks/Xamarin.iOS.framework/Versions/Current/lib/mono/Xamarin.iOS/Xamarin.iOS.dll \
+	-r \
+	/Library/Frameworks/Xamarin.iOS.framework/Versions/Current/lib/mono/Xamarin.iOS/System.Core.dll \
+	-r \
+	/Library/Frameworks/Xamarin.iOS.framework/Versions/Current/lib/mono/Xamarin.iOS/mscorlib.dll \
+	/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/bin/iPhoneSimulator/Debug//BackgroundUploadDemo.exe \

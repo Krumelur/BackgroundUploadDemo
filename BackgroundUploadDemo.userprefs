@@ -1,0 +1,38 @@
+﻿<Properties StartupItem="BackgroundUploadDemo/BackgroundUploadDemo.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.IPhone4s.8.4" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="BackgroundUploadDemo/FileUpload.cs">
+    <Files>
+      <File FileName="BackgroundUploadDemo/AppDelegate.cs" Line="35" Column="4" />
+      <File FileName="BackgroundUploadDemo/Main.cs" Line="12" Column="1" />
+      <File FileName="BackgroundUploadDemo/UploadsViewController.designer.cs" Line="1" Column="1" />
+      <File FileName="BackgroundUploadDemo/UploadsViewController.cs" Line="18" Column="75" />
+      <File FileName="../PhotosFrameworkTest/PhotosTest/BackgroundTransfer.cs" Line="601" Column="69" />
+      <File FileName="BackgroundUploadDemo/FileUpload.cs" Line="18" Column="53" />
+      <File FileName="BackgroundUploadDemo/UploadCell.cs" Line="41" Column="12" />
+      <File FileName="BackgroundUploadDemo/UploadCell.designer.cs" Line="1" Column="1" />
+      <File FileName="BackgroundUploadDemo/FileUploadManager.cs" Line="128" Column="24" />
+      <File FileName="BackgroundUploadDemo/FileUploadDelegate.cs" Line="8" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Option id="ShowAllFiles" value="True" />
+          <Node name="BackgroundUploadDemo" expanded="True">
+            <Node name="Support" expanded="True" />
+            <Node name="BackgroundUploadDemo" expanded="True">
+              <Node name="References" expanded="True" />
+              <Node name="Resources" expanded="True" />
+              <Node name="FileUpload.cs" selected="True" />
+              <Node name="UploadCell.cs" expanded="True" />
+              <Node name="UploadsViewController.cs" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
