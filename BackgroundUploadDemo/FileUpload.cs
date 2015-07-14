@@ -27,13 +27,12 @@ namespace BackgroundUploadDemo
 
 		NSUrlRequest request;
 
-		NSUrl uploadDir;
-		NSUrl localUrl;
 		DateTime creationDate;
 		NSUrlSessionUploadTask uploadTask;
 		float progress;
 		NSHttpUrlResponse response;
 		NSError error;
+		string localFilePath;
 
 		WeakReference<FileUploadManager> weakManager;
 
@@ -77,7 +76,7 @@ namespace BackgroundUploadDemo
 			}
 			if (result)
 			{
-				result = this.uploadDir != null;
+				result = !string.IsNullOrWhiteSpace (this.localFilePath);
 			}
 			if (result)
 			{

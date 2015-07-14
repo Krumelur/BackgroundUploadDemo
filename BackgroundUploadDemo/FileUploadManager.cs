@@ -125,12 +125,16 @@ namespace BackgroundUploadDemo
 			Debug.Assert(request != null, "Cannot create upload without request!");
 			Debug.Assert(!string.IsNullOrWhiteSpace(localFilename), "Cannot upload non-existing file!");
 
+			Console.WriteLine ($"Creating upload for file '{localFilename}'.");
+
 			var upload = new FileUpload(
 				request: request,
 				uniqueId: System.Guid.NewGuid().ToString(),
 				localFilePath: Path.Combine(this.baseDir, localFilename),
 				creationDate: DateTime.Now,
 				manager: this);
+
+			this.AddUpload (upload);
 		}
 
 
