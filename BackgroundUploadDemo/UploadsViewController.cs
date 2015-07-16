@@ -25,18 +25,35 @@ namespace BackgroundUploadDemo
 			this.TableView.RowHeight = uploadCell.Frame.Height;
 		}
 
+		public override void ViewWillAppear (bool animated)
+		{
+			base.ViewWillAppear (animated);
+			this.Manager.ActiveUploads.CollectionChanged += this.HandleActiveUploadsChanged;
+		}
+
+		public override void ViewWillDisappear (bool animated)
+		{
+			base.ViewWillDisappear (animated);
+			this.Manager.ActiveUploads.CollectionChanged -= this.HandleActiveUploadsChanged;
+		}
+
 		UIActionSheet sheet;
 
-		ObservableCollection<FileUpload> uploads = new ObservableCollection<FileUpload>();
+		void HandleActiveUploadsChanged(object sender, EventArgs args)
+		{
+			this.BeginInvokeOnMainThread (() => {
+				this.TableView.ReloadData ();
+			});
+		}
 
 		public override nint RowsInSection (UITableView tableview, nint section)
 		{
-			return this.uploads.Count;
+			return this.Manager.ActiveUploads.Count;
 		}
 
 		public override UITableViewCell GetCell (UITableView tableView, NSIndexPath indexPath)
 		{
-			var upload = this.uploads[indexPath.Row];
+			var upload = this.Manager.ActiveUploads[indexPath.Row];
 
 			var uploadCell = (UploadCell)tableView.DequeueReusableCell("cell");
 			uploadCell.Upload = upload;
@@ -61,7 +78,7 @@ namespace BackgroundUploadDemo
 			this.sheet.Dismissed -= this.HandleSelectUpload;
 			this.sheet = null;
 
-			NSUrl fileURL = args.ButtonIndex <= 3 ? GetUrlForTestImage (args.ButtonIndex + 1) : null;
+			string localFilename = args.ButtonIndex <= 3 ? GetLocalPathForImage (args.ButtonIndex + 1) : null;
 			var hostUrl = NSUrl.FromString ($"http://{AppDelegate.HOST_ADDRESS}:{AppDelegate.HOST_PORT}");
 
 
@@ -74,22 +91,10 @@ namespace BackgroundUploadDemo
 			var objects = new object[] { "image/png" };
 			request.Headers = NSDictionary.FromObjectsAndKeys (objects, keys);
 
-
-			// TODO: Create upload request
-			// void) [self.manager createUploadWithRequest:request fileURL:fileURL];
+			this.Manager.CreateFileUpload(request, localFilename);
 		}
 
-		/// <summary>
-		/// Gets the URL for test image.
-		/// In order to fully test uploads, we need some really big files.  Rather than carry 
-		/// these files around in our binary, we synthesise them.  Specifically, for each test image, 
-		/// we expand the image by an order of magnitude, based on its image number.  That is, image 1 
-		/// is not expanded, image 2 gets expanded 10 times, and so on.  We expand the image by simply 
-		/// copying it to the temporary directory, writing the same data to the file over and over again.
-		/// </summary>
-		/// <returns>The URL for test image.</returns>
-		/// <param name="imageNum">Image number.</param>
-		static NSUrl GetUrlForTestImage (nint imageNum)
+		static string GetLocalPathForImage (nint imageNum)
 		{
 			if (imageNum < 1 || imageNum > 4)
 			{
@@ -117,7 +122,7 @@ namespace BackgroundUploadDemo
 
 			Console.WriteLine($"Using tmp file at '{fullExpFilename}'");
 
-			return NSUrl.FromFilename (fullExpFilename);
+			return fullExpFilename;
 		}
 
 		partial void HandleQuitApp (UIBarButtonItem sender)

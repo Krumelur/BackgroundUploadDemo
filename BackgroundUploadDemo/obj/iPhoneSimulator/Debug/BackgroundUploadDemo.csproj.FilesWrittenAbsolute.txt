@@ -16,12 +16,11 @@
 /Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/ibtool/Main.storyboardc/rW9-9e-uu3-view-9o6-9G-NJZ.nib/runtime.nib
 /Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/actool/partial-info.plist
 /Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/actool/asset-manifest.plist
-/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/
-/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/bin/iPhoneSimulator/Debug/BackgroundUploadDemo.exe.mdb
-/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/bin/iPhoneSimulator/Debug/BackgroundUploadDemo.exe
-/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/BackgroundUploadDemo.exe
-/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/BackgroundUploadDemo.exe.mdb
 /Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/TestImage1.png
 /Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/TestImage2.png
 /Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/TestImage3.png
 /Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/TestImage4.png
+/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/bin/iPhoneSimulator/Debug/BackgroundUploadDemo.exe.mdb
+/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/bin/iPhoneSimulator/Debug/BackgroundUploadDemo.exe
+/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/BackgroundUploadDemo.exe
+/Users/rene/Documents/Develop/BackgroundUploadDemo/BackgroundUploadDemo/obj/iPhoneSimulator/Debug/BackgroundUploadDemo.exe.mdb

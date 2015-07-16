@@ -2,33 +2,23 @@
 using Foundation;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Linq;
 using System.IO;
+using System.Collections.ObjectModel;
 
 namespace BackgroundUploadDemo
 {
 	public class FileUploadManager
 	{
-		public FileUploadManager (string baseDir)
+		public FileUploadManager ()
 		{
-			this.baseDir = baseDir;
-
-			if(string.IsNullOrWhiteSpace(baseDir))
-			{
-				this.baseDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "..", "Library", "Caches", "uploads");
-				if(!Directory.Exists(this.baseDir))
-				{
-					Directory.CreateDirectory(this.baseDir);
-				}
-			}
-			Console.WriteLine($"Uploading will happen from folder: '{baseDir}'");
 		}
 
-		string baseDir;
+		public event EventHandler<NSUrlSession> DidFinishBackgroundEvents;
+
 		NSUrlSession session;
 
-		// maps from unique ID to upload object
-		Dictionary<string, FileUpload> activeUploads = new Dictionary<string, FileUpload>();
+		public ObservableCollection<FileUpload> ActiveUploads => new ObservableCollection<FileUpload>();
 
 		/// <summary>
 		/// The background session identifier. Set to NULL to use an ephemeral session that won't work in the background.
@@ -65,7 +55,7 @@ namespace BackgroundUploadDemo
 			config.RequestCachePolicy = NSUrlRequestCachePolicy.ReloadIgnoringCacheData;
 			config.Discretionary = true;
 
-			this.session = NSUrlSession.FromConfiguration(config, new FileUploadDelegate(), NSOperationQueue.MainQueue);
+			this.session = NSUrlSession.FromConfiguration(config, new FileUploadDelegate(this), NSOperationQueue.MainQueue);
 
 			config.Dispose();
 
@@ -93,11 +83,11 @@ namespace BackgroundUploadDemo
 
 			Console.WriteLine($"nameof(FileUploadManager) will stop.");
 
-			foreach(var upload in this.activeUploads.Values)
+			foreach(var upload in this.ActiveUploads)
 			{
 				upload.Manager = null;
 			}
-			this.activeUploads.Clear();
+			this.ActiveUploads.Clear();
 			this.session.InvalidateAndCancel();
 			this.session.Dispose();
 			this.session = null;
@@ -117,193 +107,98 @@ namespace BackgroundUploadDemo
 				return;
 			}
 			Debug.Assert(!string.IsNullOrWhiteSpace(upload.UniqueId), "Added upload must have a unique ID!");
-			this.activeUploads.Add(upload.UniqueId, upload);
+			this.ActiveUploads.Add(upload);
 		}
-
-		public void CreateUpload(NSUrlRequest request, string localFilename)
-		{
-			Debug.Assert(request != null, "Cannot create upload without request!");
-			Debug.Assert(!string.IsNullOrWhiteSpace(localFilename), "Cannot upload non-existing file!");
-
-			Console.WriteLine ($"Creating upload for file '{localFilename}'.");
-
-			var upload = new FileUpload(
-				request: request,
-				uniqueId: System.Guid.NewGuid().ToString(),
-				localFilePath: Path.Combine(this.baseDir, localFilename),
-				creationDate: DateTime.Now,
-				manager: this);
-
-			this.AddUpload (upload);
-		}
-
-
-		/*
-		 * 
-		- (FileUpload *)createUploadWithRequest:(NSURLRequest *)request fileURL:(NSURL *)fileURL
-{
-    NSUUID *        uploadUUID;
-    NSURL *         uploadDirURL;
-    NSDate *        creationDate;
-    FileUpload *    upload;
-    
-    NSParameterAssert(fileURL != nil);
-    NSParameterAssert(request != nil);
-    NSParameterAssert(self.session != nil);
-    
-    upload = nil;
-    
-    uploadUUID = [NSUUID UUID];
-    creationDate = [NSDate date];
-    
-    // Create a upload directory containing our immutable info, including a hard link 
-    // to the file to upload.
-    
-    uploadDirURL = [self createImmutableInfoForOriginalURL:fileURL request:request uploadUUID:uploadUUID creationDate:creationDate];
-    
-    // Create a upload object to match.
-
-    if (uploadDirURL != nil) {
-
-        upload = [[FileUpload alloc] initWithRequest:request uploadUUID:uploadUUID uploadDirURL:uploadDirURL originalURL:fileURL creationDate:creationDate manager:self];
-
-        // Add it to our uploads dictionary (and hence to the public uploads set).
-        
-        [self addUpload:upload];
-
-        [self logWithFormat:@"did create %@ for URL %@", upload, [request URL]];
-    }
-    
-    return upload;
-}
-*/
-
-
-
 
 		void SyncUploadTasks(NSUrlSessionTask[] uploadTasks)
 		{
 			
 		}
 
-		/*
-
-		- (BOOL)restoreUploadFromUploadDirectoryURL:(NSURL *)uploadDirURL
-		{
-			BOOL            success;
-			NSUUID *        uploadUUID;
-			NSDictionary *  immutableInfo;
-			NSData *        requestData;
-			NSURLRequest *  request;
-			NSData *        originalURLData;
-			NSURL *         originalURL;
-			NSNumber *      creationDateNum;
-			NSDate *        creationDate;
-
-			// First try to restore the immutable info.
-
-			uploadUUID = [[NSUUID alloc] initWithUUIDString:[[uploadDirURL lastPathComponent] substringFromIndex:[kUploadDirectoryPrefix length]]];
-			success = (uploadUUID != nil);
-			if (success) {
-				immutableInfo = [[NSDictionary alloc] initWithContentsOfURL:[uploadDirURL URLByAppendingPathComponent:kImmutableInfoFileName]];
-				success = (immutableInfo != nil);
-			}
-			if (success) {
-				requestData = [immutableInfo objectForKey:kImmutableInfoRequestDataKey];
-				success = [requestData isKindOfClass:[NSData class]];
-			}
-			if (success) {
-				request = [NSKeyedUnarchiver unarchiveObjectWithData:requestData];
-				success = [request isKindOfClass:[NSURLRequest class]];
-			}
-			if (success) {
-				originalURLData = [immutableInfo objectForKey:kImmutableInfoOriginalURLDataKey];
-				success = [originalURLData isKindOfClass:[NSData class]];
-			}
-			if (success) {
-				originalURL = [NSKeyedUnarchiver unarchiveObjectWithData:originalURLData];
-				success = [originalURL isKindOfClass:[NSURL class]];
-			}
-			if (success) {
-				creationDateNum = [immutableInfo objectForKey:kImmutableInfoCreationDateNumKey];
-				success = [creationDateNum isKindOfClass:[NSNumber class]];
-			}
-			if (success) {
-				creationDate = [NSDate dateWithTimeIntervalSinceReferenceDate:[creationDateNum doubleValue]];
-			}
-
-			// Then restore the mutable info.  From here on we can't fail, in that if the mutable info 
-			// is bogus we just start the upload from scratch.
-
-			if (success) {
-				FileUpload *        upload;
-				NSString *          mutableInfoLogStr;
-
-				upload = [[FileUpload alloc] initWithRequest:request uploadUUID:uploadUUID uploadDirURL:uploadDirURL originalURL:originalURL creationDate:creationDate manager:self];
-
-				// Try to restore the mutable state.  If that fails, re-create the upload 
-				// and let's start from scratch based on the immutable state.
-
-				success = [self restoreMutableInfoForFileUpload:upload];
-				if (success) {
-					mutableInfoLogStr = @" (including mutable info)";
-				} else {
-					mutableInfoLogStr = @" (without mutable info)";
-					upload = [[FileUpload alloc] initWithRequest:request uploadUUID:uploadUUID uploadDirURL:uploadDirURL originalURL:originalURL creationDate:creationDate manager:self];
-					success = YES;
-				}
-
-				// Add it to our uploads dictionary (and hence to the public uploads set).
-
-				[self addUpload:upload];
-
-				[self logWithFormat:@"did restore %@%@ for %@ from %@", upload, mutableInfoLogStr, [request URL], uploadDirURL];
-			} else {
-				[self logWithFormat:@"did not restore from %@", uploadDirURL];
-			}
-
-			return success;
-		}
-
-		- (void)restoreAllUploadsInWorkDirectory
-		{
-			for (NSURL * itemURL in [[NSFileManager defaultManager] contentsOfDirectoryAtURL:self.workDirectoryURL includingPropertiesForKeys:@[NSURLIsDirectoryKey] options:NSDirectoryEnumerationSkipsSubdirectoryDescendants error:NULL]) {
-				BOOL            success;
-				NSError *       error;
-				NSNumber *      isDirectory;
-
-				isDirectory = nil;
-
-				success = [itemURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:&error];
-				assert(success);
-
-				if ( [isDirectory boolValue] && [[itemURL lastPathComponent] hasPrefix:kUploadDirectoryPrefix] ) {
-
-					success = [self restoreUploadFromUploadDirectoryURL:itemURL];
-
-					// The above only returns NO if the upload directory is completely bogus.  In that case, 
-					// we delete it so that it doesn't trouble us again in the future.
-
-					if ( ! success ) {
-						success = [[NSFileManager defaultManager] removeItemAtURL:itemURL error:&error];
-						assert(success);
-					}
-				}
-			}
-		}
-*/
-
 		void RestoreAllUploadsInWorkDirectory()
 		{}
 
-		public void StartUpload(FileUpload upload)
-		{}
+		public FileUpload CreateFileUpload(NSUrlRequest request, string localFilename)
+		{
+			Debug.Assert (this.session != null, "Session is required to create upload task!");
+			Debug.Assert(request != null, "Cannot create upload without request!");
+			Debug.Assert(!string.IsNullOrWhiteSpace(localFilename), "Cannot upload non-existing file!");
 
-		public void StopUpload(FileUpload upload)
-		{}
+			Console.WriteLine ($"Creating upload task for file '{localFilename}'.");
 
-		public void RemoveUpload(FileUpload upload)
-		{}
+			var upload = new FileUpload(
+				request: request,
+				uniqueId: System.Guid.NewGuid().ToString(),
+				localFilePath: localFilename,
+				creationDate: DateTime.Now,
+				manager: this);
+			
+			Debug.Assert (upload.State == FileUpload.STATE.Stopped || upload.State == FileUpload.STATE.Failed, "Invalid state of file upload object!");
+
+			Console.WriteLine ($"Adding active upload with ID '{upload.UniqueId}'.");
+			this.ActiveUploads.Add (upload);
+
+			return upload;
+		}
+
+		internal void StartUpload(FileUpload upload)
+		{
+			upload.UploadTask = this.session.CreateUploadTask (upload.Request, upload.LocalFilePath);
+			upload.Error = null;
+			upload.State = FileUpload.STATE.Started;
+
+			Debug.Assert (upload.IsStateValid(), "Invalid state of upload/upload task!");
+
+			upload.UploadTask.Resume ();
+
+			this.AddUpload (upload);
+		}
+
+		internal void StopUpload(FileUpload upload)
+		{
+			Debug.Assert (this.session != null, "Session is required!");
+			Debug.Assert (upload.State == FileUpload.STATE.Started, "Only started uploads can be stopped!");
+
+			upload.State = FileUpload.STATE.Stopping;
+			Debug.Assert (upload.IsStateValid (), "Invalid state after trying to stop upload!");
+			upload.UploadTask.Cancel ();
+		}
+
+		internal void RemoveUpload(FileUpload upload, bool deleteFile)
+		{
+			Debug.Assert (this.session != null, "Session is required!");
+			Debug.Assert (upload.State == FileUpload.STATE.Stopped, "Only stopped uploads can be removed!");
+
+			var activeUpload = this.GetUploadByUniqueId (upload.UniqueId);
+			Debug.Assert (activeUpload != null, "Requested upload not found in active uploads!");
+
+			this.ActiveUploads.Remove (activeUpload);
+
+			if (deleteFile)
+			{
+				try
+				{
+					File.Delete(upload.LocalFilePath);
+				}
+				catch(Exception ex)
+				{
+					Console.WriteLine ($"Failed to delete local file at '{upload.LocalFilePath}: {ex}");
+				}
+			}
+
+		}
+
+		public FileUpload GetUploadByUniqueId(string uniqueId)
+		{
+			var upload = this.ActiveUploads.FirstOrDefault (d => d.UniqueId == uniqueId);
+			return upload;
+		}
+
+		public FileUpload GetUploadByTask(NSUrlSessionTask task)
+		{
+			var upload = this.ActiveUploads.FirstOrDefault (d => d.UniqueId == (string)task.OriginalRequest.Headers["fileupload_unique_id"]);
+			return upload;
+		}
 	}
 }
 

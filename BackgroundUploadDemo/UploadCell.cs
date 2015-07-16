@@ -11,16 +11,33 @@ namespace BackgroundUploadDemo
 		{
 		}
 
+		FileUpload upload;
+
 		public FileUpload Upload
 		{
-			get;
-			set;
+			get {
+				return upload;
+			}
+			set {
+				upload = value;
+				if (value != null)
+				{
+					this.lbl1.Text = this.Upload.CreationDate.ToLongDateString ();
+					this.lbl2.Text = this.Upload.LocalFilePath;
+				}
+				else
+				{
+					this.lbl1.Text = "";
+					this.lbl2.Text = "";
+				}
+			}
 		}
 
 		public override void AwakeFromNib ()
 		{
 			this.btn.SetBackgroundImage(CreateButtonImage(), UIControlState.Normal);
 		}
+
 
 		partial void HandleButtonClick (UIButton sender)
 		{
@@ -37,7 +54,7 @@ namespace BackgroundUploadDemo
 					this.Upload.Start();
 					break;
 				case FileUpload.STATE.Uploaded :
-					this.Upload.Remove();
+					this.Upload.Remove(deleteFile: false);
 					break;
 				case FileUpload.STATE.Failed :
 					this.Upload.Start();

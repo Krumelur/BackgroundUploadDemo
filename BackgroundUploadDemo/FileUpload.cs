@@ -15,24 +15,74 @@ namespace BackgroundUploadDemo
 			Failed
 		}
 
-		public FileUpload (NSUrlRequest request, string uniqueId, string localFilePath, DateTime creationDate, FileUploadManager manager)
+		internal FileUpload (NSUrlRequest request, string uniqueId, string localFilePath, DateTime creationDate, FileUploadManager manager)
 		{
-			this.request = request;
+			var requestCopy = (NSMutableUrlRequest)request.MutableCopy();
+
+			// Add the unique ID to the headers of the request. When our upload delegate gets called,
+			// we can acccess the request and from that get back to the FileUpload object.
+			var existingHeaders = NSMutableDictionary.FromDictionary (request.Headers);
+			existingHeaders.Add ((NSString)"fileupload_unique_id", (NSString)uniqueId);
+			requestCopy.Headers = existingHeaders;
+
+			this.Request = requestCopy;
 			this.UniqueId = uniqueId;
-			this.creationDate = creationDate;
+			this.CreationDate = creationDate;
 			this.Manager = manager;
 			this.progress = 0f;
-			this.localFilePath = localFilePath;
+			this.LocalFilePath = localFilePath;
 		}
 
-		NSUrlRequest request;
+		public override int GetHashCode ()
+		{
+			return this.UniqueId.GetHashCode ();
+		}
 
-		DateTime creationDate;
-		NSUrlSessionUploadTask uploadTask;
+		public override bool Equals (object obj)
+		{
+			if (obj == null)
+			{
+				return false;
+			}
+
+			return ((FileUpload)obj).UniqueId == this.UniqueId;
+		}
+
+		public NSUrlRequest Request
+		{
+			get;
+		}
+
+		public string LocalFilePath
+		{
+			get;
+		}
+
+		public DateTime CreationDate
+		{
+			get;
+		}
+
+		public NSUrlSessionResponse Response
+		{
+			get;
+			set;
+		}
+
+		public NSError Error
+		{
+			get;
+			set;
+		}
+
+		public NSUrlSessionUploadTask UploadTask
+		{
+			get;
+			set;
+		}
+
 		float progress;
-		NSHttpUrlResponse response;
-		NSError error;
-		string localFilePath;
+
 
 		WeakReference<FileUploadManager> weakManager;
 
@@ -68,7 +118,7 @@ namespace BackgroundUploadDemo
 		{
 			bool result;
 
-			result = this.request != null;
+			result = this.Request != null;
 
 			if (result)
 			{
@@ -76,11 +126,7 @@ namespace BackgroundUploadDemo
 			}
 			if (result)
 			{
-				result = !string.IsNullOrWhiteSpace (this.localFilePath);
-			}
-			if (result)
-			{
-				result = this.localUrl != null;
+				result = !string.IsNullOrWhiteSpace (this.LocalFilePath);
 			}
 			if (result)
 			{
@@ -88,7 +134,7 @@ namespace BackgroundUploadDemo
 			}
 			if (result)
 			{
-				result = this.creationDate != DateTime.MinValue && this.creationDate != DateTime.MaxValue;
+				result = this.CreationDate != DateTime.MinValue && this.CreationDate != DateTime.MaxValue;
 			}
 			if (result)
 			{
@@ -96,15 +142,15 @@ namespace BackgroundUploadDemo
 			}
 			if (result)
 			{
-				result = this.response != null && this.State == STATE.Uploaded;
+				result = this.Response != null && this.State == STATE.Uploaded;
 			}
 			if (result)
 			{
-				result = this.error != null && this.State == STATE.Failed;
+				result = this.Error != null && this.State == STATE.Failed;
 			}
 			if (result && includeTask)
 			{
-				result = this.uploadTask != null && (this.State == STATE.Started || this.State == STATE.Stopping);
+				result = this.UploadTask != null && (this.State == STATE.Started || this.State == STATE.Stopping);
 			}
 			return result;
 		}
@@ -122,10 +168,10 @@ namespace BackgroundUploadDemo
 			this.Manager.StopUpload(this);
 		}
 
-		public void Remove()
+		public void Remove(bool deleteFile)
 		{
 			Debug.Assert(this.IsStateValid(), "Current state is not valid when removing upload!");
-			this.Manager.RemoveUpload(this);
+			this.Manager.RemoveUpload(this, deleteFile);
 			this.Manager = null;
 		}
 	}
