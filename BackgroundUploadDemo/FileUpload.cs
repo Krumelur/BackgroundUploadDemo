@@ -29,8 +29,9 @@ namespace BackgroundUploadDemo
 			this.UniqueId = uniqueId;
 			this.CreationDate = creationDate;
 			this.Manager = manager;
-			this.progress = 0f;
+			this.Progress = 0f;
 			this.LocalFilePath = localFilePath;
+			this.State = STATE.Stopped;
 		}
 
 		public override int GetHashCode ()
@@ -63,7 +64,7 @@ namespace BackgroundUploadDemo
 			get;
 		}
 
-		public NSUrlSessionResponse Response
+		public NSHttpUrlResponse Response
 		{
 			get;
 			set;
@@ -81,7 +82,11 @@ namespace BackgroundUploadDemo
 			set;
 		}
 
-		float progress;
+		public float Progress
+		{
+			get;
+			set;
+		}
 
 
 		WeakReference<FileUploadManager> weakManager;
@@ -138,19 +143,19 @@ namespace BackgroundUploadDemo
 			}
 			if (result)
 			{
-				result = this.progress >= 0f && this.progress <= 1f;
+				result = this.Progress >= 0f && this.Progress <= 1f;
 			}
 			if (result)
 			{
-				result = this.Response != null && this.State == STATE.Uploaded;
+				result = this.Response == null || (this.Response != null && this.State == STATE.Uploaded);
 			}
 			if (result)
 			{
-				result = this.Error != null && this.State == STATE.Failed;
+				result = this.Error == null || (this.Error != null && this.State == STATE.Failed);
 			}
 			if (result && includeTask)
 			{
-				result = this.UploadTask != null && (this.State == STATE.Started || this.State == STATE.Stopping);
+				result =  this.UploadTask == null || (this.UploadTask != null && (this.State == STATE.Started || this.State == STATE.Stopping));
 			}
 			return result;
 		}
@@ -174,6 +179,9 @@ namespace BackgroundUploadDemo
 			this.Manager.RemoveUpload(this, deleteFile);
 			this.Manager = null;
 		}
+
+
+		public override string ToString () => $"[FileUpload: LocalFilePath={LocalFilePath}, CreationDate={CreationDate}, Error={Error}, UploadTask={UploadTask}, Progress={Progress}, UniqueId={UniqueId}, State={State}]";
 	}
 }
 

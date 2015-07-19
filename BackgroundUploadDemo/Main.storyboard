@@ -55,7 +55,6 @@
                                             </state>
                                             <connections>
                                                 <action selector="buttonAction:" destination="jdU-nc-ard" eventType="touchUpInside" id="1bD-WA-clg"/>
-                                                <action selector="HandleButtonClick:" destination="IWi-zL-wvx" id="24" eventType="touchDragInside"/>
                                             </connections>
                                         </button>
                                     </subviews>

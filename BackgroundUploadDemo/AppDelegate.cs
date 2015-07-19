@@ -29,7 +29,8 @@ namespace BackgroundUploadDemo
 			this.Manager = new FileUploadManager()
 			{
 				// Set to null to disable background upload for testing purposes.
-				SessionIdentifier = DEFAULT_SESSION_IDENTIFIER
+				//SessionIdentifier = DEFAULT_SESSION_IDENTIFIER
+				SessionIdentifier = null
 			};
 
 			this.Manager.StartAsync();

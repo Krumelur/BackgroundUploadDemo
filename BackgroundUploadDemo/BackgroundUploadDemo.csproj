@@ -95,6 +95,7 @@
     </Compile>
     <Compile Include="FileUploadManager.cs" />
     <Compile Include="FileUploadDelegate.cs" />
+    <Compile Include="UploadCollection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>

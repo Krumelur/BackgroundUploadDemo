@@ -29,34 +29,71 @@ namespace BackgroundUploadDemo
 
 		public override void DidFinishEventsForBackgroundSession (NSUrlSession session)
 		{
-			NSOperationQueue.MainQueue.AddOperation (() => {
-				this.Manager.DidFinishBackgroundEvents?.Invoke (this, session);
-			});
+			this.Manager.OnDidFinishBackgroundEvents(session);
+
+			this.Manager.ActiveUploads.OnCollectionChanged();
 		}
 
 		public override void DidSendBodyData (NSUrlSession session, NSUrlSessionTask task, long bytesSent, long totalBytesSent, long totalBytesExpectedToSend)
 		{
 			var fileUpload = this.Manager.GetUploadByTask (task);
-			/*
-			#pragma unused(bytesSent)
-			FileUpload *    upload;
-			double          newProgress;
+			Debug.Assert(fileUpload != null, "Could not find FileUpload object for task!");
+			if(fileUpload == null)
+			{
+				return;
+			}
 
-			assert(session == self.session);
-			assert(totalBytesExpectedToSend != NSURLSessionTransferSizeUnknown);        // because we provided a file to upload, NSURLSession should 
-			// always give us meaningful progress
-			upload = [self uploadForTask:task];
-			if (upload != nil) {
-				newProgress = (double) totalBytesSent / (double) totalBytesExpectedToSend;
-				if (upload.progress != newProgress) {
-					upload.progress = newProgress;
-				}
-			}*/
+			fileUpload.Progress = (float)totalBytesSent / (float)totalBytesExpectedToSend;
+
+			this.Manager.ActiveUploads.OnCollectionChanged();
 		}
 
 		public override void DidCompleteWithError (NSUrlSession session, NSUrlSessionTask task, NSError error)
 		{
-			
+
+			var fileUpload = this.Manager.GetUploadByTask (task);
+			Debug.Assert(fileUpload != null, "Could not find FileUpload object for task!");
+			if(fileUpload == null)
+			{
+				return;
+			}
+
+			Debug.Assert(fileUpload.State == FileUpload.STATE.Started || fileUpload.State == FileUpload.STATE.Stopping, "Upload is in invalid state!");
+
+			var urlErrorCode = NSUrlError.Unknown;
+
+			if(error != null)
+			{
+				Enum.TryParse<NSUrlError>(error.Code.ToString(), out urlErrorCode);
+			}
+
+			if(error == null)
+			{
+				fileUpload.Progress = 0f;
+				fileUpload.Error = null;
+				fileUpload.Response = fileUpload.UploadTask.Response as NSHttpUrlResponse;
+				fileUpload.UploadTask = null;
+				fileUpload.State = FileUpload.STATE.Uploaded;
+				Console.WriteLine($"Completed upload {fileUpload}.");
+			}
+			else if(urlErrorCode == NSUrlError.Cancelled)
+			{
+				fileUpload.Error = null;
+				fileUpload.UploadTask = null;
+				fileUpload.State = FileUpload.STATE.Stopped;
+			}
+			else
+			{
+				// Upload was stopped by the network.
+				fileUpload.Error = error;
+				fileUpload.UploadTask = null;
+				fileUpload.State = FileUpload.STATE.Failed;
+				Console.WriteLine($"Upload failed: {fileUpload}");
+			}
+
+			fileUpload.IsStateValid();
+
+			this.Manager.ActiveUploads.OnCollectionChanged();
 		}
 	}
 

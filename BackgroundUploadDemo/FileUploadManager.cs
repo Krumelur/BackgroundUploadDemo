@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace BackgroundUploadDemo
 {
@@ -12,13 +13,25 @@ namespace BackgroundUploadDemo
 	{
 		public FileUploadManager ()
 		{
+			this.ActiveUploads = new UploadCollection();
 		}
 
 		public event EventHandler<NSUrlSession> DidFinishBackgroundEvents;
 
+		internal void OnDidFinishBackgroundEvents (NSUrlSession session)
+		{
+			NSOperationQueue.MainQueue.AddOperation (() => {
+				this.DidFinishBackgroundEvents?.Invoke(this, session);
+			});
+		}
+
 		NSUrlSession session;
 
-		public ObservableCollection<FileUpload> ActiveUploads => new ObservableCollection<FileUpload>();
+		public UploadCollection ActiveUploads
+		{
+			get;
+			private set;
+		}
 
 		/// <summary>
 		/// The background session identifier. Set to NULL to use an ephemeral session that won't work in the background.
@@ -71,7 +84,7 @@ namespace BackgroundUploadDemo
 				this.SyncUploadTasks(activeUploadTasks);
 			});
 
-			Console.WriteLine($"nameof(FileUploadManager) did start.");
+			Console.WriteLine("FileUploadManager did start.");
 		}
 
 		public void Stop()
@@ -81,7 +94,7 @@ namespace BackgroundUploadDemo
 				return;
 			}
 
-			Console.WriteLine($"nameof(FileUploadManager) will stop.");
+			Console.WriteLine("FileUploadManager will stop.");
 
 			foreach(var upload in this.ActiveUploads)
 			{
@@ -92,7 +105,7 @@ namespace BackgroundUploadDemo
 			this.session.Dispose();
 			this.session = null;
 
-			Console.WriteLine($"nameof(FileUploadManager) did stop.");
+			Console.WriteLine("FileUploadManager did stop.");
 		}
 
 
@@ -143,15 +156,13 @@ namespace BackgroundUploadDemo
 
 		internal void StartUpload(FileUpload upload)
 		{
-			upload.UploadTask = this.session.CreateUploadTask (upload.Request, upload.LocalFilePath);
+			upload.UploadTask = this.session.CreateUploadTask (upload.Request, NSUrl.FromFilename(upload.LocalFilePath));
 			upload.Error = null;
 			upload.State = FileUpload.STATE.Started;
 
 			Debug.Assert (upload.IsStateValid(), "Invalid state of upload/upload task!");
 
 			upload.UploadTask.Resume ();
-
-			this.AddUpload (upload);
 		}
 
 		internal void StopUpload(FileUpload upload)
@@ -196,7 +207,7 @@ namespace BackgroundUploadDemo
 
 		public FileUpload GetUploadByTask(NSUrlSessionTask task)
 		{
-			var upload = this.ActiveUploads.FirstOrDefault (d => d.UniqueId == (string)task.OriginalRequest.Headers["fileupload_unique_id"]);
+			var upload = this.ActiveUploads.FirstOrDefault (d => d.UniqueId == task.OriginalRequest.Headers["fileupload_unique_id"].ToString());
 			return upload;
 		}
 	}

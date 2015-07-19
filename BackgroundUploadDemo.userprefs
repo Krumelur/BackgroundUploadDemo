@@ -1,26 +1,33 @@
 ﻿<Properties StartupItem="BackgroundUploadDemo/BackgroundUploadDemo.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.IPhone4s.8.4" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="BackgroundUploadDemo/FileUploadManager.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.IPhone5s.8.4" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="BackgroundUploadDemo/UploadCell.cs">
     <Files>
-      <File FileName="BackgroundUploadDemo/AppDelegate.cs" Line="1" Column="1" />
+      <File FileName="BackgroundUploadDemo/AppDelegate.cs" Line="13" Column="35" />
       <File FileName="BackgroundUploadDemo/Main.cs" Line="1" Column="1" />
       <File FileName="BackgroundUploadDemo/UploadsViewController.designer.cs" Line="1" Column="1" />
-      <File FileName="BackgroundUploadDemo/UploadsViewController.cs" Line="92" Column="70" />
+      <File FileName="BackgroundUploadDemo/UploadsViewController.cs" Line="51" Column="34" />
       <File FileName="../PhotosFrameworkTest/PhotosTest/BackgroundTransfer.cs" Line="1" Column="1" />
-      <File FileName="BackgroundUploadDemo/FileUpload.cs" Line="25" Column="56" />
-      <File FileName="BackgroundUploadDemo/UploadCell.cs" Line="57" Column="42" />
+      <File FileName="BackgroundUploadDemo/FileUpload.cs" Line="33" Column="29" />
+      <File FileName="BackgroundUploadDemo/UploadCell.cs" Line="62" Column="4" />
       <File FileName="BackgroundUploadDemo/UploadCell.designer.cs" Line="1" Column="1" />
-      <File FileName="BackgroundUploadDemo/FileUploadManager.cs" Line="194" Column="18" />
-      <File FileName="BackgroundUploadDemo/FileUploadDelegate.cs" Line="39" Column="43" />
+      <File FileName="BackgroundUploadDemo/FileUploadManager.cs" Line="30" Column="26" />
+      <File FileName="BackgroundUploadDemo/FileUploadDelegate.cs" Line="34" Column="53" />
+      <File FileName="BackgroundUploadDemo/Entitlements.plist" />
+      <File FileName="BackgroundUploadDemo/UploadCollection.cs" Line="15" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="BackgroundUploadDemo" expanded="True">
             <Node name="BackgroundUploadDemo" expanded="True">
-              <Node name="FileUploadManager.cs" selected="True" />
+              <Node name="UploadCell.cs" selected="True" />
             </Node>
           </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State>
+          <Value>this.Upload.Progress</Value>
         </State>
       </Pad>
     </Pads>

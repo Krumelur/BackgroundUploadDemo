@@ -26,10 +26,6 @@ namespace BackgroundUploadDemo
 		[GeneratedCode ("iOS Designer", "1.0")]
 		UILabel lbl2 { get; set; }
 
-		[Action ("HandleButtonClick:")]
-		[GeneratedCode ("iOS Designer", "1.0")]
-		partial void HandleButtonClick (UIButton sender);
-
 		void ReleaseDesignerOutlets ()
 		{
 			if (btn != null) {

@@ -15,7 +15,13 @@ namespace BackgroundUploadDemo
 		{
 		}
 
-		FileUploadManager Manager => ((AppDelegate)(UIApplication.SharedApplication.Delegate)).Manager;
+		FileUploadManager Manager
+		{
+			get
+			{
+				return ((AppDelegate)(UIApplication.SharedApplication.Delegate)).Manager;
+			}
+		}
 
 		public override void ViewDidLoad ()
 		{
@@ -79,8 +85,10 @@ namespace BackgroundUploadDemo
 			this.sheet = null;
 
 			string localFilename = args.ButtonIndex <= 3 ? GetLocalPathForImage (args.ButtonIndex + 1) : null;
-			var hostUrl = NSUrl.FromString ($"http://{AppDelegate.HOST_ADDRESS}:{AppDelegate.HOST_PORT}");
+			var filename = Path.GetFileName(localFilename);
+			var hostUrl = NSUrl.FromString ($"http://{AppDelegate.HOST_ADDRESS}:{AppDelegate.HOST_PORT}/{filename}");
 
+			Console.WriteLine($"Host URL: {hostUrl}");
 
 			var request = new NSMutableUrlRequest(hostUrl)
 			{
